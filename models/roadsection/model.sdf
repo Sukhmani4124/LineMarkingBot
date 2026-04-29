@@ -1,0 +1,35 @@
+<?xml version="1.0" ?>
+<sdf version="1.5">
+  <model name="Road Section">
+    <static>true</static>
+    <link name="link">
+      <!-- Use a flat box for collision instead of the broken mesh
+           (the .dae mesh has corrupt normals that crash the DART/ODE physics).
+           The visual still uses the proper mesh. -->
+      <collision name="collision">
+        <pose>0 0 0.01 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>16 16 0.02</size>
+          </box>
+        </geometry>
+      </collision>
+      <visual name="visual">
+        <pose frame=''>0 0 0.03 0 0 0</pose>
+        <geometry>
+          <mesh>
+            <uri>model://roadsection/meshes/model.dae</uri>
+            <scale>0.24 0.24 0.24</scale>
+          </mesh>
+        </geometry>
+        <material>
+          <script>
+            <uri>model://roadsection/materials/scripts</uri>
+            <uri>model://roadsection/materials/textures</uri>
+            <name>RoadSection/Diffuse</name>
+          </script>
+        </material>
+      </visual>
+    </link>
+  </model>
+</sdf>

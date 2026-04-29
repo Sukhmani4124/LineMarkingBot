@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<package format="3">
+  <name>robot_ros</name>
+  <version>1.0.0</version>
+  <description>ROS2 Humble package for robot_ros — differential drive robot with PID velocity controller</description>
+
+  <maintainer email="user@email.com">user</maintainer>
+  <license>BSD</license>
+
+  <buildtool_depend>ament_cmake</buildtool_depend>
+  <buildtool_depend>ament_cmake_python</buildtool_depend>
+
+  <!-- Python runtime (for PID controller node) -->
+  <depend>rclpy</depend>
+  <depend>geometry_msgs</depend>
+  <depend>nav_msgs</depend>
+
+  <!-- Robot description / visualisation -->
+  <depend>robot_state_publisher</depend>
+  <depend>joint_state_publisher</depend>
+  <depend>joint_state_publisher_gui</depend>
+  <depend>rviz2</depend>
+  <depend>xacro</depend>
+
+  <!-- Ignition / Gazebo bridge -->
+  <depend>ros_gz_sim</depend>
+  <depend>ros_gz_bridge</depend>
+
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
+</package>

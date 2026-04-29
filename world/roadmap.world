@@ -1,0 +1,443 @@
+<?xml version="1.0" ?>
+<sdf version="1.8">
+  <world name="roadmap">
+
+    <!-- ── Physics ─────────────────────────────────────────────────────── -->
+    <physics name="1ms" type="ignored">
+      <max_step_size>0.001</max_step_size>
+      <real_time_factor>1.0</real_time_factor>
+    </physics>
+
+    <!-- ── Core Ignition Plugins ────────────────────────────────────────── -->
+    <plugin filename="ignition-gazebo-physics-system"
+            name="ignition::gazebo::systems::Physics"/>
+    <plugin filename="ignition-gazebo-scene-broadcaster-system"
+            name="ignition::gazebo::systems::SceneBroadcaster"/>
+    <plugin filename="ignition-gazebo-user-commands-system"
+            name="ignition::gazebo::systems::UserCommands"/>
+    <plugin filename="ignition-gazebo-sensors-system"
+            name="ignition::gazebo::systems::Sensors">
+      <render_engine>ogre</render_engine>
+    </plugin>
+
+    <!-- ── Atmosphere & Sky ─────────────────────────────────────────────── -->
+    <atmosphere type="adiabatic"/>
+
+    <!-- ── Sunlight ─────────────────────────────────────────────────────── -->
+    <light type="directional" name="sun">
+      <cast_shadows>true</cast_shadows>
+      <pose>0 0 10 0 0 0</pose>
+      <diffuse>0.9 0.9 0.85 1</diffuse>
+      <specular>0.3 0.3 0.3 1</specular>
+      <attenuation>
+        <range>1000</range>
+        <constant>0.9</constant>
+        <linear>0.01</linear>
+        <quadratic>0.001</quadratic>
+      </attenuation>
+      <direction>-0.5 0.1 -0.9</direction>
+    </light>
+
+    <!-- Ambient fill light so shadows are not pitch-black -->
+    <light type="directional" name="ambient_fill">
+      <cast_shadows>false</cast_shadows>
+      <pose>0 0 20 0 0 0</pose>
+      <diffuse>0.4 0.4 0.5 1</diffuse>
+      <specular>0 0 0 1</specular>
+      <direction>0.5 -0.1 -0.9</direction>
+    </light>
+
+    <!-- ── Ground Plane (asphalt-coloured) ──────────────────────────────── -->
+    <model name="ground_plane">
+      <static>true</static>
+      <link name="link">
+        <collision name="collision">
+          <geometry>
+            <plane>
+              <normal>0 0 1</normal>
+              <size>200 200</size>
+            </plane>
+          </geometry>
+          <surface>
+            <friction>
+              <ode>
+                <mu>0.9</mu>
+                <mu2>0.9</mu2>
+              </ode>
+            </friction>
+          </surface>
+        </collision>
+        <visual name="visual">
+          <geometry>
+            <plane>
+              <normal>0 0 1</normal>
+              <size>200 200</size>
+            </plane>
+          </geometry>
+          <material>
+            <!-- Grass-green surroundings outside the roads -->
+            <ambient>0.28 0.40 0.22 1</ambient>
+            <diffuse>0.35 0.50 0.28 1</diffuse>
+            <specular>0.05 0.05 0.05 1</specular>
+          </material>
+        </visual>
+      </link>
+    </model>
+
+    <!-- ================================================================== -->
+    <!--                      ROAD NETWORK                                  -->
+    <!-- ================================================================== -->
+
+    <!-- ── Horizontal roads (Y ≈ +9) ────────────────────────────────────── -->
+    <include>
+      <name>road_h0</name>
+      <uri>model://road</uri>
+      <pose>-7   9  0  0 0 0</pose>
+    </include>
+    <include>
+      <name>road_h1</name>
+      <uri>model://road</uri>
+      <pose>-0.8 9  0  0 0 0</pose>
+    </include>
+    <include>
+      <name>road_h2</name>
+      <uri>model://road</uri>
+      <pose> 5.4 9  0  0 0 0</pose>
+    </include>
+    <include>
+      <name>road_h3</name>
+      <uri>model://road</uri>
+      <pose>11.6 9  0  0 0 0</pose>
+    </include>
+
+    <!-- ── Horizontal roads (Y ≈ +0.9) ──────────────────────────────────── -->
+    <include>
+      <name>road_h4</name>
+      <uri>model://road</uri>
+      <pose>-7    0.9 0  0 0 0</pose>
+    </include>
+    <include>
+      <name>road_h5</name>
+      <uri>model://road</uri>
+      <pose>-0.8  0.9 0  0 0 0</pose>
+    </include>
+    <include>
+      <name>road_h6</name>
+      <uri>model://road</uri>
+      <pose> 5.4  0.9 0  0 0 0</pose>
+    </include>
+    <include>
+      <name>road_h7</name>
+      <uri>model://road</uri>
+      <pose>11.6  0.9 0  0 0 0</pose>
+    </include>
+
+    <!-- ── Horizontal roads (Y ≈ −7.2) ──────────────────────────────────── -->
+    <include>
+      <name>road_h8</name>
+      <uri>model://road</uri>
+      <pose>-7   -7.2 0  0 0 0</pose>
+    </include>
+    <include>
+      <name>road_h9</name>
+      <uri>model://road</uri>
+      <pose> 5.4 -7.2 0  0 0 0</pose>
+    </include>
+    <include>
+      <name>road_h10</name>
+      <uri>model://road</uri>
+      <pose>11.6 -7.2 0  0 0 0</pose>
+    </include>
+
+    <!-- ── Horizontal roads (Y ≈ −15.3) ─────────────────────────────────── -->
+    <include>
+      <name>road_h11</name>
+      <uri>model://road</uri>
+      <pose>-7   -15.3 0  0 0 0</pose>
+    </include>
+    <include>
+      <name>road_h12</name>
+      <uri>model://road</uri>
+      <pose>-0.8 -15.3 0  0 0 0</pose>
+    </include>
+    <include>
+      <name>road_h13</name>
+      <uri>model://road</uri>
+      <pose> 5.4 -15.3 0  0 0 0</pose>
+    </include>
+    <include>
+      <name>road_h14</name>
+      <uri>model://road</uri>
+      <pose>11.6 -15.3 0  0 0 0</pose>
+    </include>
+
+    <!-- ── Vertical roads (X ≈ +14.2) ───────────────────────────────────── -->
+    <include>
+      <name>road_v0</name>
+      <uri>model://road</uri>
+      <pose>14.2 -7    0  0 0 1.5708</pose>
+    </include>
+    <include>
+      <name>road_v1</name>
+      <uri>model://road</uri>
+      <pose>14.2 -0.8  0  0 0 1.5708</pose>
+    </include>
+    <include>
+      <name>road_v2</name>
+      <uri>model://road</uri>
+      <pose>14.2  5.4  0  0 0 1.5708</pose>
+    </include>
+    <include>
+      <name>road_v3</name>
+      <uri>model://road</uri>
+      <pose>14.2 -13.2 0  0 0 1.5708</pose>
+    </include>
+
+    <!-- ── Vertical roads (X ≈ +6.8) ────────────────────────────────────── -->
+    <include>
+      <name>road_v4</name>
+      <uri>model://road</uri>
+      <pose>6.8 -7    0  0 0 1.5708</pose>
+    </include>
+    <include>
+      <name>road_v5</name>
+      <uri>model://road</uri>
+      <pose>6.8 -0.8  0  0 0 1.5708</pose>
+    </include>
+    <include>
+      <name>road_v6</name>
+      <uri>model://road</uri>
+      <pose>6.8  5.4  0  0 0 1.5708</pose>
+    </include>
+    <include>
+      <name>road_v7</name>
+      <uri>model://road</uri>
+      <pose>6.8 -13.2 0  0 0 1.5708</pose>
+    </include>
+
+    <!-- ── Vertical roads (X ≈ −0.5) ────────────────────────────────────── -->
+    <include>
+      <name>road_v8</name>
+      <uri>model://road</uri>
+      <pose>-0.5 -0.8  0  0 0 1.5708</pose>
+    </include>
+    <include>
+      <name>road_v9</name>
+      <uri>model://road</uri>
+      <pose>-0.5  5.4  0  0 0 1.5708</pose>
+    </include>
+    <include>
+      <name>road_v10</name>
+      <uri>model://road</uri>
+      <pose>-0.5 -13.2 0  0 0 1.5708</pose>
+    </include>
+
+    <!-- ── Vertical roads (X ≈ −8.65) ───────────────────────────────────── -->
+    <include>
+      <name>road_v11</name>
+      <uri>model://road</uri>
+      <pose>-8.65 -7    0  0 0 1.5708</pose>
+    </include>
+    <include>
+      <name>road_v12</name>
+      <uri>model://road</uri>
+      <pose>-8.65 -0.8  0  0 0 1.5708</pose>
+    </include>
+    <include>
+      <name>road_v13</name>
+      <uri>model://road</uri>
+      <pose>-8.65  5.4  0  0 0 1.5708</pose>
+    </include>
+    <include>
+      <name>road_v14</name>
+      <uri>model://road</uri>
+      <pose>-8.65 -13.2 0  0 0 1.5708</pose>
+    </include>
+
+    <!-- ── Road Section (intersection / roundabout area) ────────────────── -->
+    <include>
+      <name>roadsection_1</name>
+      <uri>model://roadsection</uri>
+      <pose>-0.8 -7 -0.001 0 0 0</pose>
+    </include>
+
+    <!-- ── Parking-area roads ────────────────────────────────────────────── -->
+    <include>
+      <name>road_park0</name>
+      <uri>model://road</uri>
+      <pose>14.2 -19.4 0  0 0 1.5708</pose>
+    </include>
+    <include>
+      <name>road_park1</name>
+      <uri>model://road</uri>
+      <pose> 6.8 -19.4 0  0 0 1.5708</pose>
+    </include>
+    <include>
+      <name>road_park2</name>
+      <uri>model://road</uri>
+      <pose> 9.9 -21.5 0  0 0 0</pose>
+    </include>
+
+    <!-- ================================================================== -->
+    <!--                      TRAFFIC SIGNS                                 -->
+    <!-- ================================================================== -->
+
+    <!-- Stop Signs -->
+    <include>
+      <name>stop_sign_0</name>
+      <uri>model://stop_sign</uri>
+      <pose>-0.5  10.5 0  0 0 0</pose>
+    </include>
+    <include>
+      <name>stop_sign_1</name>
+      <uri>model://stop_sign</uri>
+      <pose>-10   1    0  0 0 1.5708</pose>
+    </include>
+    <include>
+      <name>stop_sign_2</name>
+      <uri>model://stop_sign</uri>
+      <pose>-10  -7    0  0 0 1.5708</pose>
+    </include>
+    <include>
+      <name>stop_sign_3</name>
+      <uri>model://stop_sign</uri>
+      <pose> 6.5  10.5 0  0 0 0</pose>
+    </include>
+
+    <!-- Turn-Right Signs -->
+    <include>
+      <name>turn_right_0</name>
+      <uri>model://turn_right</uri>
+      <pose>15  1    0  0 0 -1.5708</pose>
+    </include>
+    <include>
+      <name>turn_right_1</name>
+      <uri>model://turn_right</uri>
+      <pose>15 -7    0  0 0 -1.5708</pose>
+    </include>
+    <include>
+      <name>turn_right_2</name>
+      <uri>model://turn_right</uri>
+      <pose>13 -16.1 0  0 0 -1.5708</pose>
+    </include>
+
+    <!-- Turn-Left Signs -->
+    <include>
+      <name>turn_left_0</name>
+      <uri>model://turn_left</uri>
+      <pose> 5.4  8   0  0 0 0</pose>
+    </include>
+    <include>
+      <name>turn_left_1</name>
+      <uri>model://turn_left</uri>
+      <pose>12.8  8   0  0 0 0</pose>
+    </include>
+    <include>
+      <name>turn_left_2</name>
+      <uri>model://turn_left</uri>
+      <pose>-2    8   0  0 0 0</pose>
+    </include>
+    <include>
+      <name>turn_left_3</name>
+      <uri>model://turn_left</uri>
+      <pose>-7.8  7.8 0  0 0 1.5708</pose>
+    </include>
+    <include>
+      <name>turn_left_4</name>
+      <uri>model://turn_left</uri>
+      <pose>-9    3.1 0  0 0 3.14159</pose>
+    </include>
+    <include>
+      <name>turn_left_5</name>
+      <uri>model://turn_left</uri>
+      <pose>-9  -13.1 0  0 0 3.14159</pose>
+    </include>
+
+    <!-- Straight-and-Left Signs -->
+    <include>
+      <name>straight_left_0</name>
+      <uri>model://straightandleft</uri>
+      <pose>-2   2.2  0  0 0 -1.5708</pose>
+    </include>
+    <include>
+      <name>straight_left_1</name>
+      <uri>model://straightandleft</uri>
+      <pose> 5.3 -5.8 0  0 0 -1.5708</pose>
+    </include>
+    <include>
+      <name>straight_left_2</name>
+      <uri>model://straightandleft</uri>
+      <pose> 5.3  2.2 0  0 0 -1.5708</pose>
+    </include>
+
+    <!-- No-Right / No-Left Signs -->
+    <include>
+      <name>no_right_0</name>
+      <uri>model://no_right</uri>
+      <pose>-0.5 -16   0  0 0 3.14159</pose>
+    </include>
+    <include>
+      <name>no_left_0</name>
+      <uri>model://no_left</uri>
+      <pose>13   -8    0  0 0 0</pose>
+    </include>
+    <include>
+      <name>no_left_1</name>
+      <uri>model://no_left</uri>
+      <pose>13    0    0  0 0 0</pose>
+    </include>
+
+    <!-- Roundabout Signs -->
+    <include>
+      <name>roundabout_0</name>
+      <uri>model://roundabout</uri>
+      <pose>-7.8 -5   0  0 0 -1.5708</pose>
+    </include>
+    <include>
+      <name>roundabout_1</name>
+      <uri>model://roundabout</uri>
+      <pose>-2  -14   0  0 0 -1.5708</pose>
+    </include>
+
+    <!-- Dead-End Sign -->
+    <include>
+      <name>deadend_0</name>
+      <uri>model://deadend</uri>
+      <pose>7.5 -16   0  0 0 3.14159</pose>
+    </include>
+
+    <!-- Parking Sign -->
+    <include>
+      <name>parking_0</name>
+      <uri>model://parking</uri>
+      <pose>14.8 -14   0  0 0 3.14159</pose>
+    </include>
+
+    <!-- DUR Sign -->
+    <include>
+      <name>dur_0</name>
+      <uri>model://dur</uri>
+      <pose>13.8  10.5  0  0 0 0</pose>
+    </include>
+
+    <!-- ================================================================== -->
+    <!--                      TRAFFIC LIGHTS                                -->
+    <!-- ================================================================== -->
+    <include>
+      <name>signal_0</name>
+      <uri>model://stop_light</uri>
+      <pose> 5.3  0   1.1  0 0 -1.5708</pose>
+    </include>
+    <include>
+      <name>signal_1</name>
+      <uri>model://stop_light</uri>
+      <pose>-2    0   1.1  0 0 -1.5708</pose>
+    </include>
+    <include>
+      <name>signal_2</name>
+      <uri>model://stop_light</uri>
+      <pose> 5.3 -8   1.1  0 0 -1.5708</pose>
+    </include>
+
+  </world>
+</sdf>
