@@ -14,14 +14,10 @@ v = linear velocity of robot (m/s)
 ω = angular velocity (rad/s)
 L = wheel separation = 0.24 m
 r = wheel radius = 0.05 m
-
-Left and right wheel velocities:
-
+Wheel Velocities
 v_l = v - (ω * L / 2)
 v_r = v + (ω * L / 2)
-
-Angular wheel velocities:
-
+Angular Velocities
 ω_left  = v_l / r
 ω_right = v_r / r
 URDF Plugin
@@ -43,23 +39,23 @@ Default Gazebo controllers apply instantaneous acceleration. To make motion real
 
 Mathematics
 
-Error:
+Error
 
 e(t) = v_desired - v_actual
 
-Proportional:
+Proportional
 
 P = Kp * e
 
-Integral (with limit):
+Integral (with limit)
 
 I = clamp(I + Ki * e * dt)
 
-Derivative:
+Derivative
 
 D = Kd * (change in error / dt)
 
-Output:
+Output
 
 u = P + I + D
 
@@ -96,13 +92,9 @@ The STL meshes were not aligned with the wheel axes. Changing joint positions wo
 Concept
 P_joint = physical joint position
 P_mesh = visual mesh position
-
-Offset:
-
+Offset
 V_offset = P_mesh - P_joint
-
-Example:
-
+Example
 P_joint = (0.33, -0.12, -0.0125)
 P_mesh  = (0.60, -0.145, -0.105)
 
