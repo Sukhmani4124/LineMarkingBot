@@ -1,32 +1,30 @@
-# 🧮 Mathematics & Code Architecture (`doc.md`)
+Mathematics and Code Architecture (doc.md)
 
-This document dives deep into the mathematics and core algorithms powering the `robot_ros` project. It covers the physics of the differential drive, the mathematics of the PID controller, and the coordinate transformations used for the 3D meshes.
+This document explains the mathematical models and core algorithms used in the robot_ros project. It covers differential drive kinematics, PID control, and coordinate transformations for mesh alignment.
 
----
+1. Differential Drive Kinematics
 
-## 1. Differential Drive Kinematics
+The robot uses a 4-wheel differential drive (skid-steer) configuration. For modeling purposes, this is treated as a 2-wheel differential drive system.
 
-The robot utilizes a 4-wheel differential drive setup (skid-steer), which is mathematically modeled as a 2-wheel differential drive by the Ignition Gazebo plugin.
+Mathematics
 
-### 📐 Mathematics
-Given:
-*   $v$: Linear velocity of the robot center (m/s)
-*   $\omega$: Angular velocity of the robot center (rad/s)
-*   $L$: Wheel separation distance (track width) = `0.24 m`
-*   $r$: Wheel radius = `0.05 m`
+Let:
 
-The target velocities for the left ($v_l$) and right ($v_r$) wheels are calculated as:
-$$v_l = v - \frac{\omega \cdot L}{2}$$
-$$v_r = v + \frac{\omega \cdot L}{2}$$
+v = linear velocity of robot (m/s)
+ω = angular velocity (rad/s)
+L = wheel separation = 0.24 m
+r = wheel radius = 0.05 m
 
-Gazebo converts these linear wheel speeds into angular joint commands (how fast the joints should spin in rad/s):
-$$\omega_{left\_joints} = \frac{v_l}{r}$$
-$$\omega_{right\_joints} = \frac{v_r}{r}$$
+Left and right wheel velocities:
 
-### 💻 Code Snippet: Gazebo Plugin URDF
-This mathematical model is handled entirely by the Ignition DiffDrive plugin. We map the physical parameters directly into the URDF:
+v_l = v - (ω * L / 2)
+v_r = v + (ω * L / 2)
 
-```xml
+Angular wheel velocities:
+
+ω_left  = v_l / r
+ω_right = v_r / r
+URDF Plugin
 <plugin
   filename="ignition-gazebo-diff-drive-system"
   name="ignition::gazebo::systems::DiffDrive">
@@ -39,48 +37,50 @@ This mathematical model is handled entirely by the Ignition DiffDrive plugin. We
   <odom_publish_frequency>30</odom_publish_frequency>
   <topic>cmd_vel</topic>
 </plugin>
-```
+2. PID Velocity Control Algorithm
 
----
+Default Gazebo controllers apply instantaneous acceleration. To make motion realistic, a discrete PID controller is used.
 
-## 2. PID Velocity Control Algorithm
+Mathematics
 
-Because Gazebo's internal joint controllers apply infinite acceleration to reach target speeds, we implemented an outer-loop discrete PID controller. This calculates a smoothed velocity command to feed into Gazebo.
+Error:
 
-### 📐 Mathematics
-At any given timestep $t$:
-1.  **Error Calculation:**
-    $$e(t) = v_{desired}(t) - v_{actual}(t)$$
-2.  **Proportional Term:** 
-    $$P(t) = K_p \cdot e(t)$$
-3.  **Integral Term (with Anti-Windup):** 
-    $$I(t) = \text{clamp}\left( I(t-\Delta t) + K_i \cdot e(t) \cdot \Delta t, \ -I_{max}, \ I_{max} \right)$$
-4.  **Derivative Term (on Error):** 
-    $$D(t) = K_d \cdot \frac{e(t) - e(t-\Delta t)}{\Delta t}$$
-5.  **Output Command:**
-    $$u(t) = P(t) + I(t) + D(t)$$
+e(t) = v_desired - v_actual
 
-*Note:* Because this is a velocity controller wrapping around an internal velocity actuator, a high $K_p$ causes divergent oscillations. Therefore, the system relies heavily on the Integral term ($K_i$) for smooth acceleration.
+Proportional:
 
-### 💻 Code Snippet: Python PID Implementation
-From `scripts/pid_velocity_controller.py`:
+P = Kp * e
 
-```python
-def compute(self, setpoint: float, measurement: float) -> float:
+Integral (with limit):
+
+I = clamp(I + Ki * e * dt)
+
+Derivative:
+
+D = Kd * (change in error / dt)
+
+Output:
+
+u = P + I + D
+
+Note: Keep Kp low to avoid oscillations.
+
+Python Implementation
+def compute(self, setpoint, measurement):
     now = time.monotonic()
     dt = now - self._prev_time
     error = setpoint - measurement
 
-    # 1. Proportional
+    # Proportional
     p_term = self.kp * error
 
-    # 2. Integral with anti-windup clamping
+    # Integral with limit
     self._integral += error * dt
     self._integral = max(-self.integral_limit,
                          min(self.integral_limit, self._integral))
     i_term = self.ki * self._integral
 
-    # 3. Derivative
+    # Derivative
     derivative = (error - self._prev_error) / dt
     d_term = self.kd * derivative
 
@@ -89,55 +89,42 @@ def compute(self, setpoint: float, measurement: float) -> float:
     self._prev_error = error
     self._prev_time = now
     return output
-```
+3. Coordinate Frame Transformations (Visual Offsets)
 
----
+The STL meshes were not aligned with the wheel axes. Changing joint positions would break kinematics, so physics and visuals were separated.
 
-## 3. Coordinate Frame Transformations (Visual Offsets)
+Concept
+P_joint = physical joint position
+P_mesh = visual mesh position
 
-During development, the imported `.STL` meshes for the wheels did not have their origins perfectly centered on the physical wheel axis. 
+Offset:
 
-If we simply moved the physical `<joint>` origins to align the visuals, the DiffDrive kinematics (from Section 1) would explode because the mathematical layout of the wheels would no longer form a symmetric rectangle. 
+V_offset = P_mesh - P_joint
 
-### 📐 Mathematics
-To solve this, we decoupled the **Physics Origin** from the **Visual Origin**.
-Let:
-*   $P_{joint}$: The mathematically perfect, symmetric origin for the physics engine.
-*   $P_{mesh}$: The coordinate position where the `.STL` visually looks correct relative to the base.
+Example:
 
-The required transformation offset for the visual geometry relative to the joint is simply:
-$$V_{offset} = P_{mesh} - P_{joint}$$
+P_joint = (0.33, -0.12, -0.0125)
+P_mesh  = (0.60, -0.145, -0.105)
 
-For example, for the front right wheel:
-*   $P_{joint} = (0.33, \ -0.12, \ -0.0125)$
-*   $P_{mesh} = (0.60, \ -0.145, \ -0.105)$
-*   $V_{offset} = (0.27, \ -0.025, \ -0.0925)$
+V_offset = (0.27, -0.025, -0.0925)
+URDF Implementation
+<link name="front_right_wheel">
+  <visual>
+    <origin xyz="0.27 -0.025 -0.0925" rpy="1.5708 0 1"/>
+    <geometry>
+      <mesh filename="package://robot_ros/meshes/front_right_wheel.STL"/>
+    </geometry>
+  </visual>
 
-### 💻 Code Snippet: URDF Visual Offsets
-By applying $V_{offset}$ to the `<visual>` tag, the physics engine spins the cylinder at the perfect location, but renders the 3D mesh slightly offset to match your aesthetic design.
+  <collision>
+    <origin xyz="0 0 0" rpy="1.5708 0 0"/>
+    <geometry>
+      <cylinder radius="0.05" length="0.03"/>
+    </geometry>
+  </collision>
+</link>
 
-```xml
-  <!-- FRONT RIGHT WHEEL -->
-  <link name="front_right_wheel">
-    <visual>
-      <!-- V_offset applied here to fix STL misalignment -->
-      <origin xyz="0.27 -0.025 -0.0925" rpy="1.5708 0 1"/>
-      <geometry>
-        <mesh filename="package://robot_ros/meshes/front_right_wheel.STL"/>
-      </geometry>
-    </visual>
-    <collision>
-      <!-- Physics collision remains perfectly centered on the joint -->
-      <origin xyz="0 0 0" rpy="1.5708 0 0"/>
-      <geometry>
-        <cylinder radius="0.05" length="0.03"/>
-      </geometry>
-    </collision>
-  </link>
-
-  <joint name="front_right_wheel_joint" type="continuous">
-    <!-- P_joint: Symmetrical physical axis for DiffDrive -->
-    <origin xyz="0.33 -0.12 -0.0125" rpy="0 0 0"/>
-    <axis xyz="0 1 0"/>
-  </joint>
-```
+<joint name="front_right_wheel_joint" type="continuous">
+  <origin xyz="0.33 -0.12 -0.0125" rpy="0 0 0"/>
+  <axis xyz="0 1 0"/>
+</joint>
