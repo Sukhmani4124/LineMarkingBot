@@ -168,15 +168,14 @@ robot_ros/
 ---
 
 ## Future Work
-
-- SLAM integration  
+ 
 - Autonomous navigation (Nav2)  
 - Real-world deployment  
 - Multi-robot coordination  
 
 ---
 
-## Authors
+## Team Members
 
 - Sukhmani Kaur  
 - Akshon Choudhary  
