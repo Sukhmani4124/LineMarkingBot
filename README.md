@@ -57,7 +57,7 @@ Ensure the following are installed:
 Ubuntu 22.04
 ROS 2 Humble
 Ignition Gazebo Fortress (ign-gazebo6)
-ros-humble-ros-gz (ROS–Gazebo bridge)
+ros-humble-ros-gz
 ros-humble-teleop-twist-keyboard
 Getting Started
 1. Build the Workspace
